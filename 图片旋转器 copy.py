@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QSlider,
                              QPushButton, QVBoxLayout, QHBoxLayout, QWidget,
-                             QFrame, QFileDialog, QMessageBox)
+                             QFrame, QFileDialog)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QFont
 
@@ -105,12 +105,7 @@ class ImageRotator(QMainWindow):
         self.filename_label.setStyleSheet('color: #333333;')
         layout.addWidget(self.filename_label)
         
-        # 创建图片显示区域（水平布局）
-        images_container = QWidget()
-        images_layout = QHBoxLayout(images_container)
-        images_layout.setSpacing(20)
-
-        # 左侧：当前图片
+        # 创建图片显示区域
         image_frame = QFrame()
         image_frame.setFrameStyle(QFrame.Panel | QFrame.Sunken)
         image_frame.setLineWidth(2)
@@ -119,24 +114,9 @@ class ImageRotator(QMainWindow):
         
         self.image_label = QLabel()
         self.image_label.setAlignment(Qt.AlignCenter)
-        self.image_label.setMinimumSize(400, 500)
+        self.image_label.setMinimumSize(800, 500)
         image_layout.addWidget(self.image_label)
-        images_layout.addWidget(image_frame)
-
-        # 右侧：已存在的图片
-        existing_frame = QFrame()
-        existing_frame.setFrameStyle(QFrame.Panel | QFrame.Sunken)
-        existing_frame.setLineWidth(2)
-        existing_frame.setStyleSheet('background-color: white;')
-        existing_layout = QVBoxLayout(existing_frame)
-        
-        self.existing_label = QLabel()
-        self.existing_label.setAlignment(Qt.AlignCenter)
-        self.existing_label.setMinimumSize(400, 500)
-        existing_layout.addWidget(self.existing_label)
-        images_layout.addWidget(existing_frame)
-
-        layout.addWidget(images_container)
+        layout.addWidget(image_frame)
         
         # 创建警告标签
         self.warning_label = QLabel()
@@ -317,27 +297,8 @@ class ImageRotator(QMainWindow):
             save_path = self.images_1_dir / image_path.name
             if save_path.exists():
                 self.warning_label.setText(f'警告：文件 {image_path.name} 已存在于 images_1 文件夹中！')
-                # 加载并显示已存在的图片
-                existing_image = cv2.imdecode(
-                    np.fromfile(str(save_path), dtype=np.uint8),
-                    cv2.IMREAD_COLOR
-                )
-                height, width = existing_image.shape[:2]
-                bytes_per_line = 3 * width
-                rgb_image = cv2.cvtColor(existing_image, cv2.COLOR_BGR2RGB)
-                q_img = QImage(
-                    rgb_image.data, width, height, bytes_per_line, QImage.Format_RGB888
-                )
-                pixmap = QPixmap.fromImage(q_img)
-                scaled_pixmap = pixmap.scaled(
-                    self.existing_label.size(),
-                    Qt.KeepAspectRatio,
-                    Qt.SmoothTransformation
-                )
-                self.existing_label.setPixmap(scaled_pixmap)
             else:
                 self.warning_label.setText('')
-                self.existing_label.clear()
                 
             self.updateDisplay()
             
@@ -405,65 +366,8 @@ class ImageRotator(QMainWindow):
             
             # 检查文件是否已存在
             if save_path.exists():
-                # 创建自定义样式的确认对话框
-                msg_box = QMessageBox(self)
-                msg_box.setWindowTitle('确认覆盖')
-                msg_box.setText(f'文件 {self.current_image_path.name} 已存在')
-                msg_box.setInformativeText('是否要覆盖该文件？')
-                msg_box.setIcon(QMessageBox.Question)
-                
-                # 设置按钮
-                yes_button = msg_box.addButton('覆盖', QMessageBox.YesRole)
-                no_button = msg_box.addButton('取消', QMessageBox.NoRole)
-                
-                # 设置对话框样式
-                msg_box.setStyleSheet("""
-                    QMessageBox {
-                        background-color: #ffffff;
-                        border: 2px solid #e8e8e8;
-                        border-radius: 12px;
-                        padding: 20px;
-                    }
-                    QMessageBox QLabel {
-                        color: #333333;
-                        font-size: 15px;
-                        font-weight: 500;
-                        padding: 15px;
-                        line-height: 1.4;
-                    }
-                    QPushButton {
-                        background-color: #4CAF50;
-                        color: white;
-                        border: none;
-                        border-radius: 6px;
-                        padding: 10px 20px;
-                        font-size: 14px;
-                        font-weight: 500;
-                        min-width: 100px;
-                        margin: 5px;
-                        transition: background-color 0.2s;
-                    }
-                    QPushButton:hover {
-                        background-color: #45a049;
-                    }
-                    QPushButton:pressed {
-                        background-color: #3d8b40;
-                    }
-                    QPushButton[text="取消"] {
-                        background-color: #ff5252;
-                    }
-                    QPushButton[text="取消"]:hover {
-                        background-color: #ff1744;
-                    }
-                    QPushButton[text="取消"]:pressed {
-                        background-color: #d50000;
-                    }
-                """)
-                
-                msg_box.exec_()
-                
-                if msg_box.clickedButton() == no_button:
-                    return
+                self.warning_label.setText(f'警告：文件 {self.current_image_path.name} 已存在于 images_1 文件夹中！')
+                return
             
             # 清除警告信息
             self.warning_label.setText('')

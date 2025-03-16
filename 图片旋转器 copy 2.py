@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 from PyQt5.QtWidgets import (QApplication, QMainWindow, QLabel, QSlider,
                              QPushButton, QVBoxLayout, QHBoxLayout, QWidget,
-                             QFrame, QFileDialog, QMessageBox)
+                             QFrame, QFileDialog)
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QImage, QPixmap, QFont
 
@@ -405,65 +405,8 @@ class ImageRotator(QMainWindow):
             
             # 检查文件是否已存在
             if save_path.exists():
-                # 创建自定义样式的确认对话框
-                msg_box = QMessageBox(self)
-                msg_box.setWindowTitle('确认覆盖')
-                msg_box.setText(f'文件 {self.current_image_path.name} 已存在')
-                msg_box.setInformativeText('是否要覆盖该文件？')
-                msg_box.setIcon(QMessageBox.Question)
-                
-                # 设置按钮
-                yes_button = msg_box.addButton('覆盖', QMessageBox.YesRole)
-                no_button = msg_box.addButton('取消', QMessageBox.NoRole)
-                
-                # 设置对话框样式
-                msg_box.setStyleSheet("""
-                    QMessageBox {
-                        background-color: #ffffff;
-                        border: 2px solid #e8e8e8;
-                        border-radius: 12px;
-                        padding: 20px;
-                    }
-                    QMessageBox QLabel {
-                        color: #333333;
-                        font-size: 15px;
-                        font-weight: 500;
-                        padding: 15px;
-                        line-height: 1.4;
-                    }
-                    QPushButton {
-                        background-color: #4CAF50;
-                        color: white;
-                        border: none;
-                        border-radius: 6px;
-                        padding: 10px 20px;
-                        font-size: 14px;
-                        font-weight: 500;
-                        min-width: 100px;
-                        margin: 5px;
-                        transition: background-color 0.2s;
-                    }
-                    QPushButton:hover {
-                        background-color: #45a049;
-                    }
-                    QPushButton:pressed {
-                        background-color: #3d8b40;
-                    }
-                    QPushButton[text="取消"] {
-                        background-color: #ff5252;
-                    }
-                    QPushButton[text="取消"]:hover {
-                        background-color: #ff1744;
-                    }
-                    QPushButton[text="取消"]:pressed {
-                        background-color: #d50000;
-                    }
-                """)
-                
-                msg_box.exec_()
-                
-                if msg_box.clickedButton() == no_button:
-                    return
+                self.warning_label.setText(f'警告：文件 {self.current_image_path.name} 已存在于 images_1 文件夹中！')
+                return
             
             # 清除警告信息
             self.warning_label.setText('')
